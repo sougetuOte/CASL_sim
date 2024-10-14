@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CASL2 シミュレータ</title>
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="skeleton.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CASL2 シミュレータ</h1>
+        </header>
+        <main>
+            <casl2-simulator>
+                <div id="controls">
+                    <button id="assembleBtn" class="button-primary">アセンブル</button>
+                    <button id="runBtn">実行</button>
+                    <button id="stepBtn">ステップ実行</button>
+                    <button id="resetBtn">リセット</button>
+                    <button id="runTestsBtn">テスト実行</button>
+                </div>
+                <div id="testResults" class="hidden">
+                    <h2>テスト結果</h2>
+                    <pre id="testOutput"></pre>
+                </div>
+                <div class="row">
+                    <div id="codeEditor" class="six columns">
+                        <textarea id="editor" placeholder="CASL2 コードを入力してください"></textarea>
+                    </div>
+                    <div id="registerArea" class="three columns">
+                        <h2>レジスタ</h2>
+                        <div id="generalRegisters"></div>
+                        <div id="specialRegisters"></div>
+                    </div>
+                    <div id="memoryArea" class="three columns">
+                        <h2>メモリ</h2>
+                        <div id="memory"></div>
+                        <div id="memoryEdit">
+                            <input type="number" id="memoryAddress" placeholder="アドレス" min="0" max="65535">
+                            <input type="text" id="memoryValue" placeholder="値">
+                            <button id="updateMemoryBtn">更新</button>
+                        </div>
+                    </div>
+                    <div id="outputArea" class="six columns">
+                        <h2>実行結果・出力</h2>
+                        <div id="output"></div>
+                    </div>
+                    <div id="ioLogArea" class="six columns">
+                        <h2>入出力ログ</h2>
+                        <div id="ioLog"></div>
+                    </div>
+                </div>
+            </casl2-simulator>
+        </main>
+    </div>
+    <script type="module">
+        import { CASL2Simulator } from './casl2-core.js';
+        import { CASL2Assembler } from './casl2-assembler-main.js';
+        import { CASL2SimulatorUI } from './casl2-simulator-ui.js';
+        import { CASL2UI } from './casl2-ui-core.js';
+        import { CASL2Config } from './config.js';
+        import { CASL2InstructionSet } from './instruction-set.js';
+        import { CASL2Debugger } from './debugger.js';
+        import { runCASL2Tests } from './casl2-test-suite.js';
+
+        // カスタム要素の定義
+        customElements.define('casl2-simulator', CASL2SimulatorUI);
+
+        // テスト実行ボタンにイベントリスナーを追加
+        document.getElementById('runTestsBtn').addEventListener('click', () => {
+            const testOutput = document.getElementById('testOutput');
+            const testResults = document.getElementById('testResults');
+            
+            // コンソール出力をキャプチャ
+            const originalConsoleLog = console.log;
+            const logs = [];
+            console.log = (...args) => {
+                logs.push(args.join(' '));
+                originalConsoleLog.apply(console, args);
+            };
+
+            // テストを実行
+            runCASL2Tests();
+
+            // コンソール出力を元に戻す
+            console.log = originalConsoleLog;
+
+            // テスト結果を表示
+            testOutput.textContent = logs.join('\n');
+            testResults.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
