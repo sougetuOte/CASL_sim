@@ -57,5 +57,10 @@ export class CASL2Simulator {
         this.running = false;
     }
 
+    output(message) {
+        this.ioLog.push(message);
+        this.logger.log(message);
+    }
+
     // その他のメソッドは必要に応じて追加
 }

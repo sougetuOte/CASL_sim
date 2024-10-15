@@ -51,3 +51,4 @@ Thumbs.db
 # Project-specific folders
 Resources/
 sample_programs/
+.aider*
