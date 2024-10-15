@@ -57,6 +57,10 @@ export class CASL2UI {
     }
 
     updateRegistersDisplay() {
+        if (!this.simulator) {
+            console.error('Simulator is not initialized');
+            return;
+        }
         for (let i = 0; i < 8; i++) {
             this.shadowRoot.getElementById(`GR${i}`).value = this.simulator.registers[i].toString(16).padStart(4, '0');
         }
@@ -67,11 +71,17 @@ export class CASL2UI {
 
     updateMemoryDisplay() {
         const memoryElement = this.shadowRoot.getElementById('memory');
+        if (!this.simulator || !this.simulator.memory) {
+            console.error('Simulator or memory is not initialized');
+            memoryElement.textContent = 'Memory not initialized';
+            return;
+        }
         const memoryContent = Array.from({ length: 256 }, (_, i) => {
             const address = i * 8;
-            const values = Array.from({ length: 8 }, (_, j) => 
-                this.simulator.memory[address + j].toString(16).padStart(4, '0')
-            ).join(' ');
+            const values = Array.from({ length: 8 }, (_, j) => {
+                const memValue = this.simulator.memory[address + j];
+                return memValue !== undefined ? memValue.toString(16).padStart(4, '0') : '????';
+            }).join(' ');
             return `${address.toString(16).padStart(4, '0')}: ${values}`;
         }).join('\n');
         memoryElement.textContent = memoryContent;
@@ -79,12 +89,22 @@ export class CASL2UI {
 
     updateOutputDisplay() {
         const outputElement = this.shadowRoot.getElementById('output');
+        if (!this.simulator || !this.simulator.output) {
+            console.error('Simulator or output is not initialized');
+            outputElement.innerHTML = 'Output not available';
+            return;
+        }
         outputElement.innerHTML = this.simulator.output.join('<br>');
         outputElement.scrollTop = outputElement.scrollHeight;
     }
 
     updateIOLogDisplay() {
         const ioLogElement = this.shadowRoot.getElementById('ioLog');
+        if (!this.simulator || !this.simulator.ioLog) {
+            console.error('Simulator or ioLog is not initialized');
+            ioLogElement.innerHTML = 'I/O Log not available';
+            return;
+        }
         ioLogElement.innerHTML = this.simulator.ioLog.join('<br>');
         ioLogElement.scrollTop = ioLogElement.scrollHeight;
     }

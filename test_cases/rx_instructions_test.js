@@ -54,7 +54,7 @@ describe('CASL2 Assembler RX Instructions Test', () => {
   test('Invalid address', () => {
     expect(() => {
       assemblerRX.assembleRX('CPA', 'GR1', 'INVALID_LABEL');
-    }).toThrow('無効なアドレスまたはラベル: INVALID_LABEL');
+    }).toThrow('アドレス解決エラー: 未定義のラベル: INVALID_LABEL');
   });
 
   test('Invalid index register', () => {

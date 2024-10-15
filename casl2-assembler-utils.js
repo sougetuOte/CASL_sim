@@ -1,22 +1,26 @@
 export class CASL2AssemblerUtils {
     resolveAddress(address, labelTable) {
         console.log('Resolving address:', address);
-        if (typeof address === 'number') {
-            return this.validateAddress(address);
-        }
+        try {
+            if (typeof address === 'number') {
+                return this.validateAddress(address);
+            }
 
-        address = address.trim();
+            address = address.trim();
 
-        if (address.startsWith('#')) {
-            return this.parseNumericAddress(address.slice(1));
-        } else if (address.startsWith('=')) {
-            return this.handleImmediate(address);
-        } else if (labelTable.has(address)) {
-            return labelTable.get(address);
-        } else if (this.isNumeric(address)) {
-            return this.parseNumericAddress(address);
-        } else {
-            throw new Error(`無効なアドレスまたはラベル: ${address}`);
+            if (address.startsWith('#')) {
+                return this.parseNumericAddress(address.slice(1));
+            } else if (address.startsWith('=')) {
+                return this.handleImmediate(address);
+            } else if (labelTable.has(address)) {
+                return labelTable.get(address);
+            } else if (this.isNumeric(address)) {
+                return this.parseNumericAddress(address);
+            } else {
+                throw new Error(`未定義のラベル: ${address}`);
+            }
+        } catch (error) {
+            throw new Error(`アドレス解決エラー: ${error.message}`);
         }
     }
 
@@ -44,7 +48,7 @@ export class CASL2AssemblerUtils {
             throw new Error(`無効な即値: ${value} (数値である必要があります)`);
         }
         if (immediateValue < -32768 || immediateValue > 32767) {
-            throw new Error(`即値が16ビットの範囲外です: ${value} (-32768から32767の範囲内である必要があります)`);
+            console.warn(`警告: 即値が16ビットの範囲外です: ${value}。切り捨てられます。`);
         }
         return immediateValue & 0xFFFF; // 16ビットの範囲内に収める
     }
